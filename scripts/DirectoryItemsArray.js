@@ -7,5 +7,4 @@ class DirectoryItemsArray {
     })();
   }
 }
-window.DirectoryItemsArray = DirectoryItemsArray;
 export default DirectoryItemsArray;

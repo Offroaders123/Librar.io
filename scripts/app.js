@@ -1,8 +1,16 @@
-import { get, set } from "https://unpkg.com/idb-keyval@5.0.2/dist/esm/index.js";
+// ES Module imports
+import idb from "./idb.js";
+import verifyPermission from "./verifyPermission.js";
 import DirectoryItemsArray from "./DirectoryItemsArray.js";
 
+// Adding access to module functions in the main scope (mostly just for debugging)
+window.idb = idb;
+window.verifyPermission = verifyPermission;
+window.DirectoryItemsArray = DirectoryItemsArray;
+
+// Load any existing Directory Handles from IndexedDB on startup
 try {
-  const fileHandleOrUndefined = await get("file");
+  const fileHandleOrUndefined = await idb.get("file");
   if (fileHandleOrUndefined){
     console.log(`Retrieved file handle "${fileHandleOrUndefined.name}" from IndexedDB.`);
     window.file = fileHandleOrUndefined;
@@ -12,10 +20,11 @@ try {
   alert(error.name,error.message);
 }
 
+// Open either the stored Directory Handle from IndexedDB if it exists, otherwise prompt the user to open a new Directory from their File System
 const button = document.querySelector("button");
 button.addEventListener("click",async () => {
   //try {
-    const fileHandleOrUndefined = await get("file");
+    const fileHandleOrUndefined = await idb.get("file");
     if (fileHandleOrUndefined){
       if (!(await verifyPermission(fileHandleOrUndefined))) return;
       const values = await new DirectoryItemsArray(fileHandleOrUndefined);
@@ -24,7 +33,7 @@ button.addEventListener("click",async () => {
     }
     // This always returns an array, but we just need the first entry.
     const fileHandle = await window.showDirectoryPicker();
-    await set("file",fileHandle);
+    await idb.set("file",fileHandle);
     console.log(`Stored file handle for "${fileHandle.name}" in IndexedDB.`);
     window.file = fileHandle;
     console.log(window.file);
@@ -32,15 +41,3 @@ button.addEventListener("click",async () => {
   //  alert(error.name,error.message);
   //}
 });
-
-window.verifyPermission = verifyPermission;
-async function verifyPermission(fileHandle,options = {}){
-  // Check if permission was already granted. If so, return true.
-  if ((await fileHandle.queryPermission(options)) === 'granted') return true;
-
-  // Request permission. If the user grants permission, return true.
-  if ((await fileHandle.requestPermission(options)) === 'granted') return true;
-
-  // The user didn't grant permission, so return false.
-  return false;
-}
