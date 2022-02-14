@@ -1,28 +1,3 @@
-<!DOCTYPE html>
-<html lang="en-US">
-
-<head>
-
-<title>Handle Saver</title>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<style>
-  *, *::before, *::after {
-    box-sizing: border-box;
-  }
-  body {
-    font-family: sans-serif;
-  }
-</style>
-
-</head>
-
-<body>
-
-<button>Open file</button>
-
-<script type="module">
 import { get, set } from "https://unpkg.com/idb-keyval@5.0.2/dist/esm/index.js";
 
 try {
@@ -75,8 +50,3 @@ async function verifyPermission(fileHandle,options = {}){
   // The user didn't grant permission, so return false.
   return false;
 }
-</script>
-
-</body>
-
-</html>
