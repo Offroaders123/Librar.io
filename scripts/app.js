@@ -1,4 +1,5 @@
 import { get, set } from "https://unpkg.com/idb-keyval@5.0.2/dist/esm/index.js";
+import DirectoryItemsArray from "./DirectoryItemsArray.js";
 
 try {
   const fileHandleOrUndefined = await get("file");
@@ -17,7 +18,7 @@ button.addEventListener("click",async () => {
     const fileHandleOrUndefined = await get("file");
     if (fileHandleOrUndefined){
       if (!(await verifyPermission(fileHandleOrUndefined))) return;
-      const values = await toArray(fileHandleOrUndefined.values());
+      const values = await new DirectoryItemsArray(fileHandleOrUndefined);
       console.log(values);
       return;
     }
@@ -31,13 +32,6 @@ button.addEventListener("click",async () => {
   //  alert(error.name,error.message);
   //}
 });
-
-window.toArray = toArray;
-async function toArray(iterator){
-  const array = [];
-  for await (const i of iterator) array.push(i);
-  return array;
-}
 
 window.verifyPermission = verifyPermission;
 async function verifyPermission(fileHandle,options = {}){
