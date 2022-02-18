@@ -1,3 +1,4 @@
-import { get, set } from "https://unpkg.com/idb-keyval@5.0.2/dist/esm/index.js";
+// IDB-Keyval library to allow for simple interaction with IndexedDB.
+import { get, set } from "https://cdn.jsdelivr.net/npm/idb-keyval@6/+esm";
 const idb = { get, set };
 export default idb;

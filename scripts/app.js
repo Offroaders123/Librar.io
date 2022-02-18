@@ -1,21 +1,25 @@
 // ES Module imports
-import idb from "./idb.js";
-import MediaTags from "./MediaTags.js"; /* Temporary import fix located here to add ES Module support for JSMediaTags. MediaTags is already in the window because of my workaround, so no need to add it again below for debugging purposes. */
-import verifyPermission from "./verifyPermission.js";
-import DirectoryItemsArray from "./DirectoryItemsArray.js";
+import jsMediaTags from "./jsMediaTags.js";
+import openWorkingDirectory from "./openWorkingDirectory.js";
+import getFileSystemHandlesFromDataTransfer from "./getFileSystemHandlesFromDataTransfer.js";
 
 // Adding access to module functions in the main scope (mostly just for debugging).
-window.idb = idb;
-window.verifyPermission = verifyPermission;
-window.DirectoryItemsArray = DirectoryItemsArray;
+/* jsMediaTags is already in the global scope because of my ES Module workaround, so no need to add it again here for debugging purposes. */
+window.openWorkingDirectory = openWorkingDirectory;
+window.getFileSystemHandlesFromDataTransfer = getFileSystemHandlesFromDataTransfer;
 
-// Drag and Drop Handling on the Document
+// Override the default drag and drop behavior, and allow for the user to open their Working Directory by dragging it on to the app.
 document.addEventListener("dragover",event => event.preventDefault());
 
 document.addEventListener("drop",async event => {
   event.preventDefault();
-  const directoryHandles = (await Promise.all(Array.from(event.dataTransfer.items).filter(item => item.kind === "file").map(item => item.getAsFileSystemHandle()))).filter(handle => handle.kind === "directory");
-  console.log(directoryHandles);
+  const fileSystemHandles = await getFileSystemHandlesFromDataTransfer(event.dataTransfer.items);
+  const directoryHandle = fileSystemHandles.filter(handle => handle.kind === "directory")[0];
+  openWorkingDirectory(directoryHandle);
 });
 
+// Open the Working Directory stored in IndexedDB, if one was previously stored. Otherwise, prompt the user to open a new Working Directory with the app.
 const directory_opener = document.querySelector("#directory_opener");
+directory_opener.addEventListener("click",async () => {
+  openWorkingDirectory();
+});
