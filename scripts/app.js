@@ -1,5 +1,4 @@
 // ES Module imports
-import jsMediaTags from "./jsMediaTags.js";
 import openWorkingDirectory from "./openWorkingDirectory.js";
 import getFileSystemHandlesFromDataTransfer from "./getFileSystemHandlesFromDataTransfer.js";
 
@@ -14,6 +13,7 @@ document.addEventListener("dragover",event => event.preventDefault());
 document.addEventListener("drop",async event => {
   event.preventDefault();
   const fileSystemHandles = await getFileSystemHandlesFromDataTransfer(event.dataTransfer.items);
+  if (fileSystemHandles.length === 0) return;
   const directoryHandle = fileSystemHandles.filter(handle => handle.kind === "directory")[0];
   openWorkingDirectory(directoryHandle);
 });

@@ -1,21 +1,19 @@
 // This function will return an object that represents the folder structure for the top-level FileSystemHandles that you pass into it.
 import getFileSystemHandlesFromDirectory from "./getFileSystemHandlesFromDirectory.js";
+import getMediaTagsFromAudioFile from "./getMediaTagsFromAudioFile.js";
 
 export default async function getDirectoryTreeFromFileSystemHandles(fileSystemHandles){
-  const entries = {};
-  fileSystemHandles.forEach(handle => entries[handle.name] = handle);
-  const listo = Object.keys(entries).sort((current,next) => {
-    current = current.toLowerCase().replace(/^The\s/i,"");
-    next = next.toLowerCase().replace(/^The\s/i,"");
-    if (current < next) return -1;
-    if (current > next) return 1;
-    return 0;
+  fileSystemHandles.forEach(async fileSystemHandle => {
+    const kind = fileSystemHandle.kind;
+    if (kind === "directory") return await getDirectoryTreeFromFileSystemHandles(await getFileSystemHandlesFromDirectory(fileSystemHandle));
+    const file = await fileSystemHandle.getFile();
+    const tags = await getMediaTagsFromAudioFile(file);
+
+    /* For testing: this will open album art for the song into the document! */
+    if (tags.picture){
+      const img = new Image();
+      img.src = tags.picture;
+      document.body.appendChild(img);
+    }
   });
-  const sorted = {};
-  for await (const entryName of listo){
-    const entry = entries[entryName];
-    const kind = entry.kind;
-    sorted[entryName] = (kind === "directory") ? await getDirectoryTreeFromFileSystemHandles(await getFileSystemHandlesFromDirectory(entry)) : entry;
-  }
-  return sorted;
 }
