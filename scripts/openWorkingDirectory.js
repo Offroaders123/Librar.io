@@ -19,7 +19,7 @@ export default async function openWorkingDirectory(fileSystemDirectoryHandle){
       if (!(await verifyFileSystemHandlePermission(directoryHandle))) return;
       console.log(`Retrieved FileSystemDirectoryHandle "${directoryHandle.name}" from IndexedDB.`);
     }
-    const fileSystemHandles = await getFileSystemHandlesFromDirectory(directoryHandle);
+    const fileSystemHandles = await getFileSystemHandlesFromDirectory(directoryHandle,{ recursive: true });
     const directoryTree = await getDirectoryTreeFromFileSystemHandles(fileSystemHandles);
     console.log(directoryTree);
     return directoryTree;

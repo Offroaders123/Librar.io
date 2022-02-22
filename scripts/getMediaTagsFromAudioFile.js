@@ -5,12 +5,14 @@ export default async function getMediaTagsFromAudioFile(file,advanced = false){
   return new Promise((resolve,reject) => {
     new jsMediaTags.Reader(file).read({
       onSuccess: result => {
+        /*
         if (result.tags.picture){
           const { format: type, data } = result.tags.picture;
           const blob = new Blob([new Uint8Array(data)],{ type });
           const link = window.URL.createObjectURL(blob);
           result.tags.picture = link;
         }
+        */
         if (advanced) resolve(result);
         const shortcuts = ["title","artist","album","year","comment","track","genre","picture","lyrics"];
         for (const tag in result.tags){

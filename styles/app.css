@@ -17,7 +17,7 @@ body {
   align-items: flex-start;
   gap: 18px;
   font-family: system-ui, sans-serif;
-  overflow: auto;
+  overflow: hidden;
   user-select: none;
 }
 button {
