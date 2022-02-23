@@ -2,19 +2,26 @@
 import getMediaTagsFromAudioFile from "./getMediaTagsFromAudioFile.js";
 
 export default async function getDirectoryTreeFromFileSystemHandles(fileSystemHandles){
+  const artists = {};
   const results = await Promise.all(fileSystemHandles.map(async fileSystemHandle => {
     try {
       const file = await fileSystemHandle.getFile();
       if (!file.type.startsWith("audio/")) return console.warn(`Non-audio file discovered! Cannot be parsed with JS MediaTags: "${fileSystemHandle.name}"`,fileSystemHandle);
       const tags = await getMediaTagsFromAudioFile(file);
       const { title, artist, album, year, comment, track, genre, picture, lyrics } = tags;
+      if (!artists[artist]) artists[artist] = {};
+      if (!artists[artist][album]) artists[artist][album] = [];
+      const song = {
+        title, artist, album, year, comment, track, genre, /*picture,*/ lyrics, fileSystemHandle
+      };
+      artists[artist][album].push(song);
       console.log(album);
       return album;
     } catch (error){
       console.error(error);
     }
   }));
-  return sortArray(flattenArray(results));
+  return artists;
 }
 
 function flattenArray(array){

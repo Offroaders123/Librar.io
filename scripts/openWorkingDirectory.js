@@ -21,7 +21,7 @@ export default async function openWorkingDirectory(fileSystemDirectoryHandle){
     }
     const fileSystemHandles = await getFileSystemHandlesFromDirectory(directoryHandle,{ recursive: true });
     const directoryTree = await getDirectoryTreeFromFileSystemHandles(fileSystemHandles);
-    console.log(directoryTree);
+    console.log(JSON.stringify(directoryTree,null,2));
     return directoryTree;
   } catch (error){
     console.error(error);
