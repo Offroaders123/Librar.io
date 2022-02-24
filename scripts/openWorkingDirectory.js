@@ -4,7 +4,7 @@
 import { WORKING_DIRECTORY } from "./constants.js";
 import idb from "./idb.js";
 import verifyFileSystemHandlePermission from "./verifyFileSystemHandlePermission.js";
-import getDirectoryTreeFromDirectory from "./getDirectoryTreeFromFileSystemHandles.js";
+import getDirectoryTreeFromDirectory from "./getDirectoryTreeFromDirectory.js";
 
 export default async function openWorkingDirectory(fileSystemDirectoryHandle){
   try {
