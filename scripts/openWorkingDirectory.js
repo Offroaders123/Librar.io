@@ -4,8 +4,7 @@
 import { WORKING_DIRECTORY } from "./constants.js";
 import idb from "./idb.js";
 import verifyFileSystemHandlePermission from "./verifyFileSystemHandlePermission.js";
-import getFileSystemHandlesFromDirectory from "./getFileSystemHandlesFromDirectory.js";
-import getDirectoryTreeFromFileSystemHandles from "./getDirectoryTreeFromFileSystemHandles.js";
+import getDirectoryTreeFromDirectory from "./getDirectoryTreeFromFileSystemHandles.js";
 
 export default async function openWorkingDirectory(fileSystemDirectoryHandle){
   try {
@@ -19,8 +18,7 @@ export default async function openWorkingDirectory(fileSystemDirectoryHandle){
       if (!(await verifyFileSystemHandlePermission(directoryHandle))) return;
       console.log(`Retrieved FileSystemDirectoryHandle "${directoryHandle.name}" from IndexedDB.`);
     }
-    const fileSystemHandles = await getFileSystemHandlesFromDirectory(directoryHandle,{ recursive: true });
-    const directoryTree = await getDirectoryTreeFromFileSystemHandles(fileSystemHandles);
+    const directoryTree = await getDirectoryTreeFromDirectory(directoryHandle);
     console.log(JSON.stringify(directoryTree,null,2));
     return directoryTree;
   } catch (error){

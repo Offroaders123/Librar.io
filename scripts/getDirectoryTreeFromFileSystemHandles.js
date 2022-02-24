@@ -1,31 +1,17 @@
-// This function will return an object that represents the folder structure for the top-level FileSystemHandles that you pass into it.
+// This function will return an object that represents the folder structure for the FileSystemDirectoryHandle that you pass into it.
 import getMediaTagsFromAudioFile from "./getMediaTagsFromAudioFile.js";
+import getFileSystemHandlesFromDirectory from "./getFileSystemHandlesFromDirectory.js";
 
-export default async function getDirectoryTreeFromFileSystemHandles(fileSystemHandles){
-  const artists = {};
-  const results = await Promise.all(fileSystemHandles.map(async fileSystemHandle => {
-    try {
-      const file = await fileSystemHandle.getFile();
-      if (!file.type.startsWith("audio/")) return console.warn(`Non-audio file discovered! Cannot be parsed with JS MediaTags: "${fileSystemHandle.name}"`,fileSystemHandle);
-      const tags = await getMediaTagsFromAudioFile(file);
-      const { title, artist, album, year, comment, track, genre, picture, lyrics } = tags;
-      if (!artists[artist]) artists[artist] = {};
-      if (!artists[artist][album]) artists[artist][album] = [];
-      const song = {
-        title, artist, album, year, comment, track, genre, /*picture,*/ lyrics, fileSystemHandle
-      };
-      artists[artist][album].push(song);
-      console.log(album);
-      return album;
-    } catch (error){
-      console.error(error);
-    }
-  }));
-  return artists;
-}
-
-function flattenArray(array){
-  return Array.from(new Set(array)).filter(entry => typeof entry === "string");
+export default async function getDirectoryTreeFromDirectory(fileSystemDirectoryHandle){
+  const fileSystemHandles = await getFileSystemHandlesFromDirectory(fileSystemDirectoryHandle);
+  const entries = sortArray(await Promise.all(fileSystemHandles.map(async handle => {
+    const values = (handle.kind === "directory") ? sortArray(await getDirectoryTreeFromDirectory(handle)) : null;
+    return {
+      name: handle.name,
+      ...values && ({ values }) /* Only add the "values" key when the handle is a directory. It's not needed for files. */
+    };
+  })));
+  return entries;
 }
 
 function sortArray(array){
@@ -39,5 +25,6 @@ function sortArray(array){
 }
 
 function formatKeyForSorting(key){
-  return key.toLowerCase().replace(/^(The|A)\s/i,"");
+  /* Temporarily added .name to be able to organize based on object keys */
+  return key.name.toLowerCase().replace(/^(The|A)\s/i,"");
 }
