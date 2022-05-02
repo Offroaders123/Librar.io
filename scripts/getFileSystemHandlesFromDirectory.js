@@ -3,6 +3,12 @@
 // This makes it easier to iterate over all files within the top-level parent directory, including those inside of any child folders.
 export default async function getFileSystemHandlesFromDirectory(fileSystemDirectoryHandle,{ recursive = false } = {}){
   const fileSystemHandles = [];
-  for await (const handle of fileSystemDirectoryHandle.values()) fileSystemHandles.push((handle.kind === "directory" && recursive === true) ? await getFileSystemHandlesFromDirectory(handle,{ recursive }) : handle);
+  for await (const handle of fileSystemDirectoryHandle.values()){
+    if (handle.kind === "directory" && recursive === true){
+      fileSystemHandles.push(await getFileSystemHandlesFromDirectory(handle,{ recursive }));
+    } else {
+      fileSystemHandles.push(handle);
+    }
+  }
   return (recursive === true) ? fileSystemHandles.flat(Infinity) : fileSystemHandles;
 }

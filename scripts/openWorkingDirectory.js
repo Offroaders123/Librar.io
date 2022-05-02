@@ -19,7 +19,8 @@ export default async function openWorkingDirectory(fileSystemDirectoryHandle){
       console.log(`Retrieved FileSystemDirectoryHandle "${directoryHandle.name}" from IndexedDB.`);
     }
     const directoryTree = await getDirectoryTreeFromDirectory(directoryHandle);
-    console.log(JSON.stringify(directoryTree,null,2));
+    // console.log(JSON.stringify(directoryTree,null,2));
+    console.log(directoryTree);
     return directoryTree;
   } catch (error){
     console.error(error);
