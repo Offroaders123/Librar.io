@@ -1,14 +1,14 @@
 // This function will return an object that represents the folder structure for the FileSystemDirectoryHandle that you pass into it.
-import getFileSystemHandlesFromDirectory from "./getFileSystemHandlesFromDirectory.js";
+import getFileSystemHandlesFromDirectory from "./handles-from-directory.js";
 
 export default async function getDirectoryTreeFromDirectory(fileSystemDirectoryHandle){
   const fileSystemHandles = await getFileSystemHandlesFromDirectory(fileSystemDirectoryHandle);
   const entries = sortArray(await Promise.all(fileSystemHandles.map(async handle => {
-    const values = (handle.kind === "directory") ? sortArray(await getDirectoryTreeFromDirectory(handle)) : null;
+    const value = (handle.kind === "directory") ? sortArray(await getDirectoryTreeFromDirectory(handle)) : null;
     const fileHandle = (handle.kind === "file") ? handle : null;
     return {
       name: handle.name,
-      ...values && ({ values }), /* Only add the "values" key when the handle is a directory. It's not needed for files. */
+      ...value && ({ value }), /* Only add the "value" key when the handle is a directory. It's not needed for files. */
       ...fileHandle && ({ handle: fileHandle }) /* Only add the "handle" key when the handle is a file. */
     };
   })));
