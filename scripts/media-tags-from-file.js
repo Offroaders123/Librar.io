@@ -1,9 +1,9 @@
 // This function will return a Promise, which will resolve to an object that holds the metadata about the audio file that you passed into the function. By default, only the shortcut metadata from JS MediaTags is returned.
-import jsMediaTags from "./jsMediaTags.js";
+import { Reader as TagReader } from "./media-tags.js";
 
 export default async function getMediaTagsFromAudioFile(file,advanced = false){
   return new Promise((resolve,reject) => {
-    new jsMediaTags.Reader(file).read({
+    new TagReader(file).read({
       onSuccess: result => {
         /*
         if (result.tags.picture){

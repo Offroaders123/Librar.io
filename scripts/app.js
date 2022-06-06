@@ -1,11 +1,5 @@
-import jsMediaTags from "./jsMediaTags.js";
 import openWorkingDirectory from "./openWorkingDirectory.js";
-import getFileSystemHandlesFromDataTransfer from "./getFileSystemHandlesFromDataTransfer.js";
-
-// Adding access to module functions in the main scope (mostly just for debugging).
-window.jsMediaTags = jsMediaTags;
-window.openWorkingDirectory = openWorkingDirectory;
-window.getFileSystemHandlesFromDataTransfer = getFileSystemHandlesFromDataTransfer;
+import getFileSystemHandlesFromDataTransfer from "./handles-from-data-transfer.js";
 
 // Override the default drag and drop behavior, and allow for the user to open their Working Directory by dragging it on to the app.
 document.addEventListener("dragover",event => event.preventDefault());
