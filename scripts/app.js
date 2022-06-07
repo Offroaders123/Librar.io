@@ -1,26 +1,46 @@
-import jsMediaTags from "./jsMediaTags.js";
-import openWorkingDirectory from "./openWorkingDirectory.js";
-import getFileSystemHandlesFromDataTransfer from "./getFileSystemHandlesFromDataTransfer.js";
+import fsa from "./fsa.js";
 
-// Adding access to module functions in the main scope (mostly just for debugging).
-window.jsMediaTags = jsMediaTags;
-window.openWorkingDirectory = openWorkingDirectory;
-window.getFileSystemHandlesFromDataTransfer = getFileSystemHandlesFromDataTransfer;
-
-// Override the default drag and drop behavior, and allow for the user to open their Working Directory by dragging it on to the app.
 document.addEventListener("dragover",event => event.preventDefault());
 
 document.addEventListener("drop",async event => {
   event.preventDefault();
-  const fileSystemHandles = await getFileSystemHandlesFromDataTransfer(event.dataTransfer.items);
-  if (fileSystemHandles.length !== 0){
-    const [ directoryHandle ] = fileSystemHandles.filter(handle => handle.kind === "directory");
-    openWorkingDirectory(directoryHandle);
-  }
+  const handles = await fsa.dataTransferHandles(event.dataTransfer);
+
+  if (!handles.length) return;
+  const directory = handles.filter(handle => handle.kind === "directory")[0];
+  console.log(directory);
 });
 
-// Open the Working Directory stored in IndexedDB, if one was previously stored. Otherwise, prompt the user to open a new Working Directory with the app.
-const directory_opener = document.querySelector("#directory_opener");
-directory_opener.addEventListener("click",async () => {
-  openWorkingDirectory();
-});
+const main = document.querySelector("main");
+
+const library = await (await fetch("scripts/library.json")).json();
+
+createTree({ tree: library });
+
+function createTree({ tree, parent = main } = {}){
+  if (parent === main){
+    main.innerHTML = "";
+  }
+
+  for (const entry of tree){
+    const { name, value } = entry;
+
+    const details = document.createElement("details");
+    const summary = document.createElement("summary");
+    const content = document.createElement("section");
+    const opener = document.createElement("button");
+
+    if (value){
+      details.open = true;
+      summary.textContent = name;
+      createTree({ tree: value, parent: content });
+      details.append(summary,content);
+      parent.append(details);
+    } else {
+      opener.textContent = name;
+      // opener.addEventListener("click",() => playAudio({ handle: entry }));
+      content.append(opener);
+      parent.append(content);
+    }
+  }
+}

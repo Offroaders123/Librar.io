@@ -12,14 +12,16 @@
 
 <body>
 
-<h1>Librar.io</h1>
+<header>
+  <h1>Librar.io</h1>
+  <figure>
+    <audio controls></audio>
+    <figcaption>Song</figcaption>
+  </figure>
+  <button>Open Directory</button>
+</header>
 
-<button id="directory_opener">Open Directory</button>
-
-<h3 id="directory_title"></h3>
-<h5 id="song_title"></h5>
-<audio id="song_player" controls></audio>
-<section id="tree_viewer"></section>
+<main>this is the tree area!</main>
 
 <!-- Temporary import method for JS MediaTags, which doesn't appear to have an ES Module export available at the moment. See my workaround at ./scripts/jsMediaTags.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>

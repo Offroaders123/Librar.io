@@ -9,13 +9,10 @@ html {
   overflow: hidden;
 }
 body {
-  padding: 18px;
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 18px;
   font-family: system-ui, sans-serif;
   overflow: hidden;
   user-select: none;
@@ -57,14 +54,35 @@ details > section > section > button::before {
   border-left-color: currentColor;
   border-right-width: 0;
 }
-#tree_viewer {
-  width: 100%;
-  height: 100%;
+header {
+  padding: 8px 16px;
+  color-scheme: dark;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 1fr auto 1fr;
+  place-items: center;
+  color: #eaeaea;
+  background: #1e1e1e;
+}
+header h1 {
+  justify-self: start;
+}
+header figure {
+  display: flex;
+  gap: inherit;
+  align-items: center;
+}
+header button {
+  justify-self: end;
+}
+main {
+  padding: 16px;
+  flex-basis: 100%;
   display: flex;
   flex-direction: column;
   gap: 8px;
   overflow: auto;
 }
-#tree_viewer > section {
+main > section {
   font-size: 13px;
 }
