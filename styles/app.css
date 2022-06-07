@@ -76,6 +76,10 @@ header figure {
   gap: inherit;
   align-items: center;
 }
+header figure img {
+  width: 40px;
+  aspect-ratio: 1 / 1;
+}
 header button {
   justify-self: end;
 }

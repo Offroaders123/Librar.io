@@ -1,4 +1,5 @@
 import fsa from "./fsa.js";
+import MediaTags from "./MediaTags.js";
 
 document.addEventListener("dragover",event => event.preventDefault());
 
@@ -19,6 +20,7 @@ opener.addEventListener("click",() => {
 });
 
 const main = document.querySelector("main");
+const artwork = document.querySelector("#artwork");
 const player = document.querySelector("#player");
 const title = document.querySelector("#title");
 
@@ -60,10 +62,18 @@ async function playSong(fileHandle){
   const { name, type } = file;
   if (!type.includes("audio")) return;
 
-  const blob = window.URL.createObjectURL(file);
-  player.src = blob;
+  const song = window.URL.createObjectURL(file);
+  player.src = song;
   title.textContent = formatSong(name);
   await player.play();
+
+  const { art } = await MediaTags.read(file,{ art: true });
+  console.log(art);
+  if (!art) return artwork.src = "";
+
+  const icon = window.URL.createObjectURL(art);
+  artwork.addEventListener("load",() => window.URL.revokeObjectURL(icon),{ once: true });
+  artwork.src = icon;
 }
 
 function formatSong(name){
