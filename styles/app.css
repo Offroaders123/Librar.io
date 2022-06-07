@@ -24,6 +24,10 @@ button {
   gap: 4px;
   font-family: inherit;
 }
+audio {
+  width: 400px;
+  height: 40px;
+}
 details {
   font-size: 13px;
   border: 1px solid #00000080;
@@ -35,7 +39,7 @@ details > summary {
   outline: none;
 }
 details > summary:focus-visible {
-  background-color: #0000ff40;
+  background-color: #004bbd40;
 }
 details[open] > summary {
   border-bottom: 1px solid #00000080;
@@ -55,7 +59,7 @@ details > section > section > button::before {
   border-right-width: 0;
 }
 header {
-  padding: 8px 16px;
+  padding: 12px 32px;
   color-scheme: dark;
   display: grid;
   gap: 8px;
@@ -76,12 +80,13 @@ header button {
   justify-self: end;
 }
 main {
-  padding: 16px;
+  padding: 16px 32px;
   flex-basis: 100%;
   display: flex;
   flex-direction: column;
   gap: 8px;
   overflow: auto;
+  overflow: overlay;
 }
 main > section {
   font-size: 13px;
