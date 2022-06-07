@@ -7,8 +7,8 @@ document.addEventListener("drop",async event => {
   const handles = await fsa.dataTransferHandles(event.dataTransfer);
 
   if (!handles.length) return;
-  const directory = handles.filter(handle => handle.kind === "directory")[0];
-  const tree = await fsa.dirtree(directory);
+  const directories = handles.filter(handle => handle.kind === "directory");
+  const tree = await fsa.dirtree(directories);
   console.log(tree);
   createTree({ tree });
 });
@@ -46,7 +46,7 @@ function createTree({ tree, parent = main } = {}){
       details.append(summary,content);
       parent.append(details);
     } else {
-      opener.textContent = name;
+      opener.textContent = formatSong(name);
       opener.addEventListener("click",() => playSong(entry.handle));
       content.append(opener);
       parent.append(content);
@@ -62,6 +62,10 @@ async function playSong(fileHandle){
 
   const blob = window.URL.createObjectURL(file);
   player.src = blob;
-  title.textContent = name;
-  player.paused ? player.play() : player.pause();
+  title.textContent = formatSong(name);
+  await player.play();
+}
+
+function formatSong(name){
+  return name.split(" ").slice(1).join(" ").split(".").slice(0,-1).join(".");
 }
