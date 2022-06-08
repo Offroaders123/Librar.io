@@ -3,7 +3,7 @@ delete window.jsmediatags;
 
 const { Reader } = MediaTags;
 
-export function read(file,{ art = false, advanced = false } = {}){
+export function read(file,{ artwork = false, advanced = false } = {}){
   return new Promise((resolve,reject) => {
     new Reader(file).read({
       onSuccess: result => {
@@ -13,10 +13,11 @@ export function read(file,{ art = false, advanced = false } = {}){
         for (const tag in tags){
           if (!shortcuts.includes(tag)) delete tags[tag];
         }
-        if (art && tags.picture){
+        if (artwork && tags.picture){
           const { format: type, data } = tags.picture;
           const blob = new Blob([new Uint8Array(data)],{ type });
-          tags.art = blob;
+          const src = window.URL.createObjectURL(blob);
+          tags.artwork = [{ src, type }];
         }
         delete tags.picture;
         resolve(tags);
