@@ -16,17 +16,17 @@ document.addEventListener("drop",async event => {
 
 const opener = document.querySelector("#opener");
 opener.addEventListener("click",() => {
-  createTree({ tree: library });
+  // createTree({ tree: library });
 });
 
 const main = document.querySelector("main");
-const artwork = document.querySelector("#artwork");
+const art = document.querySelector("#art");
 const player = document.querySelector("#player");
 const title = document.querySelector("#title");
 
-const library = await (await fetch("scripts/library.json")).json();
+// const library = await (await fetch("scripts/library.json")).json();
 
-createTree({ tree: library });
+// createTree({ tree: library });
 
 function createTree({ tree, parent = main } = {}){
   if (parent === main){
@@ -67,13 +67,15 @@ async function playSong(fileHandle){
   title.textContent = formatSong(name);
   await player.play();
 
-  const { art } = await MediaTags.read(file,{ art: true });
-  console.log(art);
-  if (!art) return artwork.src = "";
+  const tags = await MediaTags.read(file,{ artwork: true });
 
-  const icon = window.URL.createObjectURL(art);
-  artwork.addEventListener("load",() => window.URL.revokeObjectURL(icon),{ once: true });
-  artwork.src = icon;
+  if ("mediaSession" in navigator){
+    navigator.mediaSession.metadata = new MediaMetadata(tags);
+  }
+  if (!tags.artwork) return art.src = "";
+
+  art.addEventListener("load",() => window.URL.revokeObjectURL(art.src),{ once: true });
+  art.src = tags.artwork[0].src;
 }
 
 function formatSong(name){
