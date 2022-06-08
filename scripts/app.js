@@ -74,7 +74,6 @@ async function playSong(fileHandle){
   }
   if (!tags.artwork) return art.src = "";
 
-  art.addEventListener("load",() => window.URL.revokeObjectURL(art.src),{ once: true });
   art.src = tags.artwork[0].src;
 }
 
