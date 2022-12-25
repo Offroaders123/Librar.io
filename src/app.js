@@ -5,30 +5,33 @@ document.addEventListener("dragover",event => event.preventDefault());
 
 document.addEventListener("drop",async event => {
   event.preventDefault();
-  const handles = await fsa.dataTransferHandles(event.dataTransfer);
+  const handles = await fsa.dataTransferHandles(/** @type { DataTransfer } */ (event.dataTransfer));
 
   if (!handles.length) return;
-  const directories = handles.filter(handle => handle.kind === "directory");
+  const directories = /** @type { FileSystemDirectoryHandle[] } */ (handles.filter(handle => handle.kind === "directory"));
   const tree = await fsa.dirtree(directories);
   console.log(tree);
   createTree({ tree });
 });
 
-const opener = document.querySelector("#opener");
+const opener = /** @type { HTMLButtonElement } */ (document.querySelector("#opener"));
 opener.addEventListener("click",() => {
   // createTree({ tree: library });
 });
 
-const main = document.querySelector("main");
-const art = document.querySelector("#art");
-const player = document.querySelector("#player");
-const title = document.querySelector("#title");
+const main = /** @type { HTMLElement } */ (document.querySelector("main"));
+const art = /** @type { HTMLImageElement } */ (document.querySelector("#art"));
+const player = /** @type { HTMLAudioElement } */ (document.querySelector("#player"));
+const title = /** @type { HTMLElement } */ (document.querySelector("#title"));
 
 // const library = await (await fetch(new URL("../test/library.json",import.meta.url))).json();
 
 // createTree({ tree: library });
 
-function createTree({ tree, parent = main } = {}){
+/**
+ * @param { { tree: import("./fsa.js").DirTree[]; parent?: HTMLElement; } } options
+*/
+function createTree({ tree, parent = main }){
   if (parent === main){
     main.innerHTML = "";
   }
@@ -49,13 +52,16 @@ function createTree({ tree, parent = main } = {}){
       parent.append(details);
     } else {
       opener.textContent = formatSong(name);
-      opener.addEventListener("click",() => playSong(entry.handle));
+      opener.addEventListener("click",() => playSong(/** @type { FileSystemFileHandle } */ (entry.handle)));
       content.append(opener);
       parent.append(content);
     }
   }
 }
 
+/**
+ * @param { FileSystemFileHandle } fileHandle
+*/
 async function playSong(fileHandle){
   if (fileHandle instanceof FileSystemFileHandle !== true) return;
   const file = await fileHandle.getFile();
@@ -77,6 +83,9 @@ async function playSong(fileHandle){
   art.src = tags.artwork[0].src;
 }
 
+/**
+ * @param { string } name
+*/
 function formatSong(name){
   return name.split(" ").slice(1).join(" ").split(".").slice(0,-1).join(".");
 }

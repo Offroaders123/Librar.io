@@ -1,26 +1,34 @@
 const { jsmediatags: MediaTags } = window;
-delete window.jsmediatags;
+
+/**
+ * @typedef { import("jsmediatags/types").ShortcutTags & MediaMetadataInit } MediaTags
+*/
 
 const { Reader } = MediaTags;
 
-export function read(file,{ artwork = false, advanced = false } = {}){
+/**
+ * @param { Blob } file
+ * @param { { artwork?: boolean; } | undefined } options
+ * @returns { Promise<MediaTags> }
+*/
+export async function read(file,{ artwork = false } = {}){
   return new Promise((resolve,reject) => {
     new Reader(file).read({
-      onSuccess: result => {
-        if (advanced) resolve(result);
-        const { tags } = result;
+      onSuccess: ({ tags }) => {
         const shortcuts = ["title","artist","album","year","comment","track","genre","picture","lyrics"];
         for (const tag in tags){
           if (!shortcuts.includes(tag)) delete tags[tag];
         }
-        if (artwork && tags.picture){
-          const { format: type, data } = tags.picture;
+        // @ts-ignore
+        const result = /** @type { MediaTags } */ (tags);
+        if (artwork && result.picture){
+          const { format: type, data } = result.picture;
           const blob = new Blob([new Uint8Array(data)],{ type });
           const src = window.URL.createObjectURL(blob);
-          tags.artwork = [{ src, type }];
+          result.artwork = [{ src, type }];
         }
-        delete tags.picture;
-        resolve(tags);
+        delete result.picture;
+        resolve(result);
       },
       onError: error => reject(error)
     });
