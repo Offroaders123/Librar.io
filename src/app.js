@@ -24,7 +24,7 @@ const art = document.querySelector("#art");
 const player = document.querySelector("#player");
 const title = document.querySelector("#title");
 
-// const library = await (await fetch("scripts/library.json")).json();
+// const library = await (await fetch(new URL("../test/library.json",import.meta.url))).json();
 
 // createTree({ tree: library });
 
