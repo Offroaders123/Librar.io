@@ -8,7 +8,8 @@
     "moduleResolution": "Node",
     "target": "ESNext",
     "types": [
-      "new-javascript"
+      "new-javascript/whatwg/file-system",
+      "new-javascript/wicg/file-system-access"
     ],
     "noEmit": true,
     "strict": true

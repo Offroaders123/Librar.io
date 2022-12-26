@@ -13,8 +13,7 @@ export async function dataTransferHandles(dataTransfer){
 export async function readdir(directoryHandle,{ recursive = false } = {}){
   /** @type { RecursiveHandleArray } */
   const handles = [];
-  // @ts-expect-error
-  for await (const handle of /** @type { FileSystemHandle[] } */ (directoryHandle.values())){
+  for await (const handle of directoryHandle.values()){
     handles.push(handle.kind === "directory" && recursive === true ? await readdir(/** @type { FileSystemDirectoryHandle } */ (handle),{ recursive }) : /** @type { FileSystemHandle } */ (handle));
   }
   // @ts-expect-error
