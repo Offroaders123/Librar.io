@@ -3,32 +3,33 @@
  * 
  * @param { DataTransfer } dataTransfer
 */
-export async function dataTransferHandles(dataTransfer){
-  const files = [...dataTransfer.items].filter(item => item.kind === "file");
-  const handles = /** @type { FileSystemHandle[] } */ ((await Promise.all(files.map(item => item.getAsFileSystemHandle()))).filter(item => item !== null));
-  return handles;
+export async function dataTransferHandles({ items }){
+  const files = [...items].filter(item => item.kind === "file");
+  const handles = await Promise.all(files.map(item => item.getAsFileSystemHandle()));
+  const result = handles.filter(/** @returns { handle is FileSystemHandle } */ handle => handle !== null);
+  return result;
 }
 
 /**
- * Gets all FileSystemHandle objects from within a given FileSystemDirectoryHandle object. If the recursive flag is set to true, all of the handles will be flattened to a singular, single-depth array of all of the directory's file handles.
+ * Gets all FileSystemHandle objects from a FileSystemDirectoryHandle object.
  * 
- * @param { FileSystemDirectoryHandle | FileSystemHandle[] } directoryHandle
+ * @param { FileSystemDirectoryHandle } directoryHandle
 */
-export async function readdir(directoryHandle,{ recursive = false } = {}){
-  /** @type { RecursiveHandleArray } */
+export async function readdir(directoryHandle){
+  /** @type { FileSystemHandle[] } */
   const handles = [];
+
   for await (const handle of directoryHandle.values()){
-    handles.push(handle.kind === "directory" && recursive === true ? await readdir(/** @type { FileSystemDirectoryHandle } */ (handle),{ recursive }) : /** @type { FileSystemHandle } */ (handle));
+    handles.push(handle);
   }
-  // @ts-expect-error
-  return /** @type { FileSystemHandle[] | RecursiveHandleArray } */ (recursive === true ? handles.flat(Infinity) : handles);
+
+  return handles;
 }
 
 /**
  * @typedef DirTree
  * @property { string } name
- * @property { DirTree[] } [value]
- * @property { FileSystemFileHandle } [handle]
+ * @property { DirTree[] | FileSystemFileHandle } value
 */
 
 /**
@@ -37,22 +38,19 @@ export async function readdir(directoryHandle,{ recursive = false } = {}){
  * @param { FileSystemDirectoryHandle | FileSystemHandle[] } directoryHandle
 */
 export async function dirtree(directoryHandle){
-  const handles = /** @type { FileSystemHandle[] } */ (await readdir(directoryHandle));
+  const handles = (directoryHandle instanceof FileSystemDirectoryHandle) ? await readdir(directoryHandle) : directoryHandle;
 
-  /** @type { DirTree[] } */
   const entries = await Promise.all(handles.map(async entry => {
-    const { name, kind } = entry;
-    const value = kind === "directory" ? await dirtree(/** @type { FileSystemDirectoryHandle } */ (entry)) : null;
-    const handle = kind === "file" ? /** @type { FileSystemFileHandle } */ (entry) : null;
-
-    return {
-      name,
-      ...value && ({ value }),
-      ...handle && ({ handle })
-    };
+    const { name } = entry;
+    const value = (entry instanceof FileSystemDirectoryHandle) ? await dirtree(entry) : /** @type { FileSystemFileHandle } */ (entry);
+    /** @type { DirTree } */
+    const result = { name, value };
+    return result;
   }));
 
-  return sortArray(entries);
+  const result = sortArray(entries);
+
+  return result;
 }
 
 /**
@@ -71,7 +69,7 @@ function sortArray(array){
 }
 
 /**
- * Returns a sanitized version of a given key string, without any "A" or "The" prefixes.
+ * Returns a sanitized version of a given key string, without any word prefixes. This is used to sort an array of DirTree objects by each entry's name property, alphabetically.
  * 
  * @param { string } key
 */

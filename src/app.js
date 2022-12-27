@@ -29,6 +29,8 @@ const title = /** @type { HTMLElement } */ (document.querySelector("#title"));
 // createTree({ tree: library });
 
 /**
+ * Creates a DOM tree that mirrors the content of the given DirTree object.
+ * 
  * @param { { tree: fs.DirTree[]; parent?: HTMLElement; } } options
 */
 function createTree({ tree, parent = main }){
@@ -44,15 +46,17 @@ function createTree({ tree, parent = main }){
     const content = document.createElement("section");
     const opener = document.createElement("button");
 
-    if (value){
+    if (!(value instanceof FileSystemFileHandle)){
       // details.open = true;
       summary.textContent = name;
       createTree({ tree: value, parent: content });
       details.append(summary,content);
       parent.append(details);
     } else {
-      opener.textContent = formatSong(name);
-      opener.addEventListener("click",() => playSong(/** @type { FileSystemFileHandle } */ (entry.handle)));
+      // opener.textContent = formatSong(name);
+      opener.textContent = name;
+
+      opener.addEventListener("click",() => playSong(value));
       content.append(opener);
       parent.append(content);
     }
@@ -60,30 +64,34 @@ function createTree({ tree, parent = main }){
 }
 
 /**
+ * Plays a song from a given FileSystemFileHandle object.
+ * 
  * @param { FileSystemFileHandle } fileHandle
 */
 async function playSong(fileHandle){
-  if (fileHandle instanceof FileSystemFileHandle !== true) return;
+  if (!(fileHandle instanceof FileSystemFileHandle)) return;
+
   const file = await fileHandle.getFile();
   const { name, type } = file;
   if (!type.includes("audio")) return;
 
-  const song = window.URL.createObjectURL(file);
+  const song = URL.createObjectURL(file);
   player.src = song;
   title.textContent = formatSong(name);
   await player.play();
 
   const tags = await jsmediatags.read(file,{ artwork: true });
 
-  if ("mediaSession" in navigator){
-    navigator.mediaSession.metadata = new MediaMetadata(tags);
-  }
-  if (!tags.artwork) return art.src = "";
+  navigator.mediaSession.metadata = new MediaMetadata(tags);
 
-  art.src = tags.artwork[0].src;
+  if (tags.artwork !== undefined){
+    art.src = tags.artwork[0].src;
+  }
 }
 
 /**
+ * Formats the FileSystemFileHandle name string to be only the song name portion.
+ * 
  * @param { string } name
 */
 function formatSong(name){
