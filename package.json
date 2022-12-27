@@ -2,6 +2,6 @@
   "name": "librar.io",
   "devDependencies": {
     "@types/jsmediatags": "^3.9.3",
-    "new-javascript": "^0.1.10"
+    "new-javascript": "^0.1.12"
   }
 }
