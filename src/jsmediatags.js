@@ -1,26 +1,26 @@
-const { jsmediatags: MediaTags } = window;
+const { jsmediatags } = window;
 
 /**
- * @typedef { import("jsmediatags/types").ShortcutTags & MediaMetadataInit } MediaTags
+ * @typedef { import("jsmediatags/types").ShortcutTags & MediaMetadataInit } Tags
 */
 
-const { Reader } = MediaTags;
-
 /**
+ * Reads the media tags from a given Blob object.
+ * 
  * @param { Blob } file
  * @param { { artwork?: boolean; } | undefined } options
- * @returns { Promise<MediaTags> }
+ * @returns { Promise<Tags> }
 */
 export async function read(file,{ artwork = false } = {}){
   return new Promise((resolve,reject) => {
-    new Reader(file).read({
+    jsmediatags.read(file,{
       onSuccess: ({ tags }) => {
         const shortcuts = ["title","artist","album","year","comment","track","genre","picture","lyrics"];
         for (const tag in tags){
           if (!shortcuts.includes(tag)) delete tags[tag];
         }
         // @ts-ignore
-        const result = /** @type { MediaTags } */ (tags);
+        const result = /** @type { Tags } */ (tags);
         if (artwork && result.picture){
           const { format: type, data } = result.picture;
           const blob = new Blob([new Uint8Array(data)],{ type });
@@ -34,5 +34,3 @@ export async function read(file,{ artwork = false } = {}){
     });
   });
 }
-
-export default { read, [Symbol.toStringTag]: "MediaTags" };

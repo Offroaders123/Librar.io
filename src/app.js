@@ -1,15 +1,15 @@
-import fsa from "./fsa.js";
-import MediaTags from "./MediaTags.js";
+import * as fs from "./fs.js";
+import * as jsmediatags from "./jsmediatags.js";
 
 document.addEventListener("dragover",event => event.preventDefault());
 
 document.addEventListener("drop",async event => {
   event.preventDefault();
-  const handles = await fsa.dataTransferHandles(/** @type { DataTransfer } */ (event.dataTransfer));
+  const handles = await fs.dataTransferHandles(/** @type { DataTransfer } */ (event.dataTransfer));
 
   if (!handles.length) return;
   const directories = /** @type { FileSystemDirectoryHandle[] } */ (handles.filter(handle => handle.kind === "directory"));
-  const tree = await fsa.dirtree(directories);
+  const tree = await fs.dirtree(directories);
   console.log(tree);
   createTree({ tree });
 });
@@ -29,7 +29,7 @@ const title = /** @type { HTMLElement } */ (document.querySelector("#title"));
 // createTree({ tree: library });
 
 /**
- * @param { { tree: import("./fsa.js").DirTree[]; parent?: HTMLElement; } } options
+ * @param { { tree: fs.DirTree[]; parent?: HTMLElement; } } options
 */
 function createTree({ tree, parent = main }){
   if (parent === main){
@@ -73,7 +73,7 @@ async function playSong(fileHandle){
   title.textContent = formatSong(name);
   await player.play();
 
-  const tags = await MediaTags.read(file,{ artwork: true });
+  const tags = await jsmediatags.read(file,{ artwork: true });
 
   if ("mediaSession" in navigator){
     navigator.mediaSession.metadata = new MediaMetadata(tags);

@@ -1,4 +1,6 @@
 /**
+ * Extracts any FileSystemHandle objects present on a given DataTransfer object.
+ * 
  * @param { DataTransfer } dataTransfer
 */
 export async function dataTransferHandles(dataTransfer){
@@ -8,6 +10,8 @@ export async function dataTransferHandles(dataTransfer){
 }
 
 /**
+ * Gets all FileSystemHandle objects from within a given FileSystemDirectoryHandle object. If the recursive flag is set to true, all of the handles will be flattened to a singular, single-depth array of all of the directory's file handles.
+ * 
  * @param { FileSystemDirectoryHandle | FileSystemHandle[] } directoryHandle
 */
 export async function readdir(directoryHandle,{ recursive = false } = {}){
@@ -17,7 +21,7 @@ export async function readdir(directoryHandle,{ recursive = false } = {}){
     handles.push(handle.kind === "directory" && recursive === true ? await readdir(/** @type { FileSystemDirectoryHandle } */ (handle),{ recursive }) : /** @type { FileSystemHandle } */ (handle));
   }
   // @ts-expect-error
-  return recursive === true ? handles.flat(Infinity) : handles;
+  return /** @type { FileSystemHandle[] | RecursiveHandleArray } */ (recursive === true ? handles.flat(Infinity) : handles);
 }
 
 /**
@@ -28,10 +32,12 @@ export async function readdir(directoryHandle,{ recursive = false } = {}){
 */
 
 /**
+ * Maps a RecursiveHandleArray into a symmetical object structure, but with directories represented as simple objects, and the children files being the data structure end points.
+ * 
  * @param { FileSystemDirectoryHandle | FileSystemHandle[] } directoryHandle
 */
 export async function dirtree(directoryHandle){
-  const handles = await readdir(directoryHandle);
+  const handles = /** @type { FileSystemHandle[] } */ (await readdir(directoryHandle));
 
   /** @type { DirTree[] } */
   const entries = await Promise.all(handles.map(async entry => {
@@ -50,6 +56,8 @@ export async function dirtree(directoryHandle){
 }
 
 /**
+ * Sorts an array of DirTree objects by it's name key.
+ * 
  * @param { DirTree[] } array
 */
 function sortArray(array){
@@ -63,10 +71,10 @@ function sortArray(array){
 }
 
 /**
+ * Returns a sanitized version of a given key string, without any "A" or "The" prefixes.
+ * 
  * @param { string } key
 */
 function formatKey(key){
   return key.toLowerCase().replace(/^(The|A)\s/i,"");
 }
-
-export default { dataTransferHandles, readdir, dirtree, [Symbol.toStringTag]: "fsa" };
