@@ -1,7 +1,15 @@
 {
   "name": "librar.io",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc; vite build",
+    "dev": "vite",
+    "preview": "vite preview"
+  },
   "devDependencies": {
     "@types/jsmediatags": "^3.9.3",
-    "new-javascript": "^0.1.12"
+    "new-javascript": "^0.1.12",
+    "vite": "^4.4.7"
   }
 }

@@ -24,9 +24,9 @@ const art = /** @type { HTMLImageElement } */ (document.querySelector("#art"));
 const player = /** @type { HTMLAudioElement } */ (document.querySelector("#player"));
 const title = /** @type { HTMLElement } */ (document.querySelector("#title"));
 
-const library = await (await fetch(new URL("../test/library.json",import.meta.url))).json();
+// const library = await (await fetch(new URL("../test/library.json",import.meta.url))).json();
 
-createTree({ tree: library });
+// createTree({ tree: library });
 
 /**
  * Creates a DOM tree that mirrors the content of the given DirTree object.
@@ -38,7 +38,6 @@ function createTree({ tree, parent = main }){
     main.innerHTML = "";
   }
 
-  console.log(tree);
   for (const entry of tree){
     const { name, value } = entry;
 
