@@ -5,35 +5,40 @@ document.addEventListener("dragover",event => event.preventDefault());
 
 document.addEventListener("drop",async event => {
   event.preventDefault();
-  const handles = await fs.dataTransferHandles(/** @type { DataTransfer } */ (event.dataTransfer));
+  if (event.dataTransfer === null) return;
 
+  const handles = await fs.dataTransferHandles(event.dataTransfer);
   if (!handles.length) return;
-  const directories = /** @type { FileSystemDirectoryHandle[] } */ (handles.filter(handle => handle.kind === "directory"));
+
+  const directories = handles.filter((handle): handle is FileSystemDirectoryHandle => handle.kind === "directory");
   const tree = await fs.dirtree(directories);
   console.log(tree);
   createTree({ tree });
 });
 
-const opener = /** @type { HTMLButtonElement } */ (document.querySelector("#opener"));
+const opener = document.querySelector<HTMLButtonElement>("#opener")!;
 opener.addEventListener("click",() => {
   // createTree({ tree: library });
 });
 
-const main = /** @type { HTMLElement } */ (document.querySelector("main"));
-const art = /** @type { HTMLImageElement } */ (document.querySelector("#art"));
-const player = /** @type { HTMLAudioElement } */ (document.querySelector("#player"));
-const title = /** @type { HTMLElement } */ (document.querySelector("#title"));
+const main = document.querySelector<HTMLElement>("main")!;
+const art = document.querySelector<HTMLImageElement>("#art")!;
+const player = document.querySelector<HTMLAudioElement>("#player")!;
+const title = document.querySelector<HTMLElement>("#title")!;
 
 // const library = await (await fetch(new URL("../test/library.json",import.meta.url))).json();
 
 // createTree({ tree: library });
 
+interface CreateTreeOptions {
+  tree: fs.DirTree[];
+  parent?: HTMLElement;
+}
+
 /**
  * Creates a DOM tree that mirrors the content of the given DirTree object.
- * 
- * @param { { tree: fs.DirTree[]; parent?: HTMLElement; } } options
 */
-function createTree({ tree, parent = main }){
+function createTree({ tree, parent = main }: CreateTreeOptions): void {
   if (parent === main){
     main.innerHTML = "";
   }
@@ -56,7 +61,10 @@ function createTree({ tree, parent = main }){
       // opener.textContent = formatSong(name);
       opener.textContent = name;
 
-      opener.addEventListener("click",() => playSong(value));
+      opener.addEventListener("click",() => {
+        if (!(value instanceof FileSystemFileHandle)) return;
+        playSong(value);
+      });
       content.append(opener);
       parent.append(content);
     }
@@ -65,12 +73,8 @@ function createTree({ tree, parent = main }){
 
 /**
  * Plays a song from a given FileSystemFileHandle object.
- * 
- * @param { FileSystemFileHandle } fileHandle
 */
-async function playSong(fileHandle){
-  if (!(fileHandle instanceof FileSystemFileHandle)) return;
-
+async function playSong(fileHandle: FileSystemFileHandle): Promise<void> {
   const file = await fileHandle.getFile();
   const { name, type } = file;
   if (!type.includes("audio")) return;
@@ -84,16 +88,14 @@ async function playSong(fileHandle){
 
   navigator.mediaSession.metadata = new MediaMetadata(tags);
 
-  if (tags.artwork !== undefined){
-    art.src = tags.artwork[0].src;
-  }
+  const artwork = tags.artwork?.[0];
+  if (artwork === undefined) return;
+  art.src = artwork.src;
 }
 
 /**
  * Formats the FileSystemFileHandle name string to be only the song name portion.
- * 
- * @param { string } name
 */
-function formatSong(name){
+function formatSong(name: string): string {
   return name.split(" ").slice(1).join(" ").split(".").slice(0,-1).join(".");
 }

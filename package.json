@@ -9,7 +9,11 @@
   },
   "devDependencies": {
     "@types/jsmediatags": "^3.9.3",
-    "new-javascript": "^0.1.12",
+    "new-javascript": "^0.1.16",
+    "typescript": "^5.1.6",
     "vite": "^4.4.7"
+  },
+  "dependencies": {
+    "jsmediatags": "^3.9.7"
   }
 }
